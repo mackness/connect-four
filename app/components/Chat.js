@@ -1,11 +1,5 @@
 import React, { Component } from 'react';
 
-/*
-vertical: 7
-horizontal right: 8
-horizontal left: 6
-*/
-
 class Chat extends Component {
 
   constructor(props) {

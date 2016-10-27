@@ -1,8 +1,14 @@
+//libs
 import React, { Component } from 'react';
 import _ from 'lodash';
+import io from '../libs/socket.io.js';
+
+//components
 import Slot from './Slot.js';
 import WinnerOverlay from './WinnerOverlay';
 import resetGame from '../utils/resetGame';
+
+//utils
 import {horizontal, vertical, diagonal, reverseDiagonal} from '../utils/sequenceFinder';
 
 class Board extends Component {
@@ -25,6 +31,7 @@ class Board extends Component {
     this.handleClick = this.handleClick.bind(this)
     this.handleSlotState = this.handleSlotState.bind(this)
     this.checkForWinner = this.checkForWinner.bind(this)
+    this.handleWebSockets = this.handleWebSockets.bind(this)
   }
 
   resetGame() {
@@ -50,12 +57,6 @@ class Board extends Component {
     })
   }
 
-  verticalMatch(board) {
-    return board.map((col, i) => {
-      return col
-    })
-  }
-
   checkForWinner() {
     let {board} = this.state
     if (horizontal(board) || vertical(board) || diagonal(board) || reverseDiagonal(board)) {
@@ -68,8 +69,8 @@ class Board extends Component {
   handleSlotState(colIndex, state) {
     let {board, activeColor} = this.state;
     let slot = {
-      "state": state, 
-      "color": activeColor, 
+      "state": state,
+      "color": activeColor,
       "val": activeColor == 'blue' ? 100 : -100
     };
     let slotIndex = -1;
@@ -100,8 +101,15 @@ class Board extends Component {
       }
     })
 
-    this.setState({
-      board
+    this.setState({ board })
+  }
+
+  handleWebSockets() {
+    console.log('handleWebSockets')
+    io().emit('player_moved', JSON.stringify(this.state));
+    io().on('player_moved', (state)=> {
+      console.log(JSON.parse(state))
+      this.setState(JSON.parse(state))
     })
   }
 
@@ -109,6 +117,7 @@ class Board extends Component {
     this.handleSlotState(index, 'active')
     this.toggleActiveColor()
     this.checkForWinner()
+    this.handleWebSockets()
   }
 
   render() {
@@ -120,7 +129,7 @@ class Board extends Component {
         </div>
       );
     } else {
-      var winnerOverlay = ''
+      var winnerOverlay;
     }
     return (
       <div>

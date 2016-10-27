@@ -16,6 +16,7 @@ module.exports = {
     filename: '[name].js',
     publicPath: '/'
   },
+  externals: ['ws'],
   plugins: [
     new HtmlWebpackPlugin({
       template: 'app/index.tpl.html',
@@ -30,6 +31,7 @@ module.exports = {
     })
   ],
   module: {
+    noParse: ['ws'],
     loaders: [{
       test: /\.jsx?$/,
       exclude: /node_modules/,

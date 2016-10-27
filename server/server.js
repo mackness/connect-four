@@ -5,11 +5,13 @@ const express = require('express');
 const webpack = require('webpack');
 const webpackMiddleware = require('webpack-dev-middleware');
 const webpackHotMiddleware = require('webpack-hot-middleware');
-const config = require('./webpack.config.js');
+const config = require('../webpack.config.js');
 
 const isDeveloping = process.env.NODE_ENV !== 'production';
 const port = isDeveloping ? 3000 : process.env.PORT;
 const app = express();
+const http = require('http').Server(app);
+const io = require('socket.io')(http);
 
 if (isDeveloping) {
   const compiler = webpack(config);
@@ -29,17 +31,24 @@ if (isDeveloping) {
   app.use(middleware);
   app.use(webpackHotMiddleware(compiler));
   app.get('*', function response(req, res) {
-    res.write(middleware.fileSystem.readFileSync(path.join(__dirname, 'dist/index.html')));
+    res.write(middleware.fileSystem.readFileSync(path.join(__dirname, '../dist/index.html')));
     res.end();
   });
 } else {
-  app.use(express.static(__dirname + '/dist'));
+  app.use(express.static(__dirname + '../dist'));
   app.get('*', function response(req, res) {
-    res.sendFile(path.join(__dirname, 'dist/index.html'));
+    res.sendFile(path.join(__dirname, '../dist/index.html'));
   });
 }
 
-app.listen(port, '0.0.0.0', function onStart(err) {
+io.on('connection', function(socket) {
+  console.log('connected')
+  socket.on('player_moved', function(state) {
+    io.emit(state);
+  });
+});
+
+http.listen(port, '0.0.0.0', function onStart(err) {
   if (err) {
     console.log(err);
   }
