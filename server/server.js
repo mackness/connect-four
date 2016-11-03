@@ -1,16 +1,15 @@
 /* eslint no-console: 0 */
 
-const path = require('path');
-const express = require('express');
-const isDeveloping = process.env.NODE_ENV !== 'production';
-const port = isDeveloping ? 3000 : process.env.PORT;
-const app = express();
-const http = require('http').Server(app);
-const io = require('socket.io')(http);
+var path = require('path');
+var express = require('express');
+var isDeveloping = process.env.NODE_ENV !== 'production';
+var port = isDeveloping ? 3000 : process.env.PORT;
+var app = express();
+var http = require('http').Server(app);
+var io = require('socket.io')(http);
 var shortid = require('shortid');
 
-
-app.get('/', (req, res) => {
+app.get('/', function(req, res) {
   var uuid = shortid.generate()
   res.redirect(`/${uuid}`)
   app.use(express.static(path.join(__dirname, '../dist')));
@@ -43,7 +42,7 @@ app.get('/', (req, res) => {
 
   });
 
-  app.get('/:uuid', (req, res) => {
+  app.get('/:uuid', function(req, res) {
     res.sendFile(path.join(__dirname, '../dist/index.html'));
   });
 });
