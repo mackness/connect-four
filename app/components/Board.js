@@ -1,7 +1,6 @@
 //libs
 import React, { Component } from 'react';
 import _ from 'lodash';
-import io from '../libs/socket.io.js';
 
 //components
 import Slot from './Slot.js';
@@ -31,7 +30,7 @@ class Board extends Component {
     this.handleClick = this.handleClick.bind(this)
     this.handleSlotState = this.handleSlotState.bind(this)
     this.checkForWinner = this.checkForWinner.bind(this)
-    this.handleWebSockets = this.handleWebSockets.bind(this)
+    this.playerMoved = this.playerMoved.bind(this)
   }
 
   resetGame() {
@@ -50,29 +49,25 @@ class Board extends Component {
     })
   }
 
-  toggleActiveColor() {
-    let {activeColor} = this.state
-    this.setState({
-      activeColor: activeColor == 'blue' ? 'red' : 'blue'
-    })
-  }
-
   checkForWinner() {
     let {board} = this.state
+    let {socket} = this.props;
     if (horizontal(board) || vertical(board) || diagonal(board) || reverseDiagonal(board)) {
-      this.setState({
-        winner: this.state.activeColor
-      })
-    } 
+      this.setState({winner: this.props.color})
+      socket.emit('winner', this.props.color);
+    }
+    socket.on('winner', (color) => this.setState({ winner: color }))
   }
 
   handleSlotState(colIndex, state) {
-    let {board, activeColor} = this.state;
+    let {board} = this.state;
+    let {color} = this.props;
     let slot = {
       "state": state,
-      "color": activeColor,
-      "val": activeColor == 'blue' ? 100 : -100
+      "color": color,
+      "val": color == 'blue' ? 100 : -100
     };
+    
     let slotIndex = -1;
 
     board[colIndex].forEach((slot, i)=> {
@@ -104,61 +99,54 @@ class Board extends Component {
     this.setState({ board })
   }
 
-  handleWebSockets() {
-    console.log('handleWebSockets')
-    io().emit('player_moved', JSON.stringify(this.state));
-    io().on('player_moved', (state)=> {
-      console.log(JSON.parse(state))
-      this.setState(JSON.parse(state))
+  playerMoved() {
+    let {socket} = this.props;
+    socket.emit('player_moved', JSON.stringify(this.state));
+  }
+
+  handleClick(index) {
+    this.handleSlotState(index, 'active')
+    this.checkForWinner()
+    this.playerMoved()
+    this.props.toggleActivePlayer()
+  }
+
+  componentDidMount() {
+    let {socket} = this.props;
+    socket.on('player_moved', (state)=> {
+      var {board} = JSON.parse(state)
+      this.setState({board})
     })
   }
 
-  handleClick(index, activeColor) {
-    this.handleSlotState(index, 'active')
-    this.toggleActiveColor()
-    this.checkForWinner()
-    this.handleWebSockets()
-  }
-
   render() {
-    var {active, activeColor, board} = this.state
-    if (this.state.winner) {
-      var winnerOverlay = (
-        <div className="winner-overlay">
-          <h2 class="title">{this.state.winner} won!</h2>
-        </div>
-      );
-    } else {
-      var winnerOverlay;
-    }
+    var {active, activeColor, board, winner} = this.state;
+    var {activePlayer, color, disabled} = this.props;
     return (
-      <div>
-        <h1 className="headline">Connect 4</h1>
-        <div className="board">
-          
-          {this.state.winner ? <WinnerOverlay winner={this.state.winner} reset={this.resetGame.bind(this)} /> : ''}
-          
-          {board.map((col, colIndex)=> {
-            return <div 
-                    className="column"
-                    key={colIndex} 
-                    onMouseEnter={this.setSlotPreview.bind(this, colIndex)}
-                    onMouseLeave={this.clearSlotPreview.bind(this, colIndex)}>
-              
-              {col.map((slot, slotIndex)=> {
-                return <Slot 
-                        key={slotIndex}
-                        slot={slot}
-                        colIndex={colIndex}
-                        slotIndex={slotIndex}
-                        activeColor={activeColor}
-                        handleClick={this.handleClick} />
-              })}
-              
-              </div>
-          })}
-        </div> 
-      </div>
+      <div className={`board ${disabled ? 'board--disabled' : ''}`}>
+        
+        {winner ? <WinnerOverlay winner={this.state.winner} reset={this.resetGame.bind(this)} /> : ''}
+        
+        {board.map((col, colIndex)=> {
+          return <div 
+                  className="column"
+                  key={colIndex} 
+                  onMouseEnter={this.setSlotPreview.bind(this, colIndex)}
+                  onMouseLeave={this.clearSlotPreview.bind(this, colIndex)}>
+            
+            {col.map((slot, slotIndex)=> {
+              return <Slot 
+                      key={slotIndex}
+                      slot={slot}
+                      colIndex={colIndex}
+                      slotIndex={slotIndex}
+                      activeColor={this.props.color}
+                      handleClick={this.handleClick} />
+            })}
+
+            </div>
+        })}
+      </div> 
     );
   }
 }

@@ -2,49 +2,49 @@
 
 const path = require('path');
 const express = require('express');
-const webpack = require('webpack');
-const webpackMiddleware = require('webpack-dev-middleware');
-const webpackHotMiddleware = require('webpack-hot-middleware');
-const config = require('../webpack.config.js');
-
 const isDeveloping = process.env.NODE_ENV !== 'production';
 const port = isDeveloping ? 3000 : process.env.PORT;
 const app = express();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
+var shortid = require('shortid');
 
-if (isDeveloping) {
-  const compiler = webpack(config);
-  const middleware = webpackMiddleware(compiler, {
-    publicPath: config.output.publicPath,
-    contentBase: 'src',
-    stats: {
-      colors: true,
-      hash: false,
-      timings: true,
-      chunks: false,
-      chunkModules: false,
-      modules: false
-    }
+
+app.get('/', (req, res) => {
+  var uuid = shortid.generate()
+  res.redirect(`/${uuid}`)
+  app.use(express.static(path.join(__dirname, '../dist')));
+  var nsp = io.of(`/${uuid}`)
+  var usercount = 0;
+
+  nsp.on('connection', function(socket) {
+    
+    socket.emit('connected', usercount++)
+    
+    socket.on('player_moved', function(state) {
+      nsp.emit('player_moved', state);
+    });
+
+    socket.on('set_active_player', function(activePlayer) {
+      socket.broadcast.emit('set_active_player', activePlayer);
+    });
+    
+    socket.on('chat_message', function(message) {
+      socket.broadcast.emit('chat_message', message);
+    });
+
+    socket.on('winner', function(color) {
+      nsp.emit('winner', color);
+    });
+
+    socket.on('disconnect', function () {
+      nsp.emit('disconnected', usercount--);
+    });
+
   });
 
-  app.use(middleware);
-  app.use(webpackHotMiddleware(compiler));
-  app.get('*', function response(req, res) {
-    res.write(middleware.fileSystem.readFileSync(path.join(__dirname, '../dist/index.html')));
-    res.end();
-  });
-} else {
-  app.use(express.static(__dirname + '../dist'));
-  app.get('*', function response(req, res) {
+  app.get('/:uuid', (req, res) => {
     res.sendFile(path.join(__dirname, '../dist/index.html'));
-  });
-}
-
-io.on('connection', function(socket) {
-  console.log('connected')
-  socket.on('player_moved', function(state) {
-    io.emit(state);
   });
 });
 

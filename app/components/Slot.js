@@ -15,7 +15,6 @@ export default (props) => {
     return (
       <div className={`slot ${slotState || ''}`} onClick={props.handleClick.bind(this, props.colIndex)}>
         <div className="disc-container">
-          <span style={{color: 'white'}}>{props.slotIndex}</span>
           <div className="disc" style={{background: props.slot && props.slot.color ? props.slot.color : '' }}></div>
         </div>
       </div>

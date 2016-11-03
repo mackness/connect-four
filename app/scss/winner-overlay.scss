@@ -1,0 +1,32 @@
+
+.winner-overlay {
+	z-index: 10;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	position: absolute;
+	background: rgba(0,0,0,.45);
+}
+
+.winner-overlay-inner {
+    text-align: center;
+    width: 100%;
+    position: absolute;
+    top: 40%;
+    transform: translateY(-50%);
+    padding-bottom: 20px;
+    color: #fff;
+}
+
+.winner-overlay__title {
+	text-transform: uppercase;
+}
+
+.winner-overlay__button {
+    background: #fff;
+    color: #000;
+    padding: 8px 20px;
+    border-radius: 30px;
+    cursor: pointer;
+}

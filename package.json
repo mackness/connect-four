@@ -20,16 +20,18 @@
   "homepage": "https://github.com/mackness/connect-four",
   "scripts": {
     "test": "",
-    "start": "nodemon ./server/server.js",
+    "start": "node ./server/server.js",
     "build": "rimraf dist && cross-env NODE_ENV=production webpack --config ./webpack.production.config.js --progress --profile --colors",
     "eslint": "eslint .",
     "jscs": "jscs ."
   },
   "dependencies": {
     "babel-cli": "^6.4.0",
+    "clipboard": "^1.5.15",
     "lodash": "^4.16.4",
     "react": "^0.14.3",
     "react-dom": "^0.14.3",
+    "shortid": "^2.2.6",
     "socket.io": "^1.5.1"
   },
   "devDependencies": {
