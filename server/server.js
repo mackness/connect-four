@@ -43,7 +43,6 @@ app.get('/', function(req, res) {
     socket.on('disconnect', function () {
       socket.broadcast.emit('disconnected', usercount--);
     });
-
   });
 
   app.get('/:uuid', function(req, res) {

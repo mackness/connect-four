@@ -57,8 +57,8 @@ class Chat extends Component {
 
     socket.on('ready_to_play', ()=> {
       messages.push({
-        color: 'black',
-        value: 'Both players are connected and ready to play!'
+        color: this.props.color == 'blue' ? 'red' : 'blue',
+        value: 'I\'m connected and ready to play!'
       })
       this.setState({ messages })
     })

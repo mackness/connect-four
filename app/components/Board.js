@@ -123,7 +123,7 @@ class Board extends Component {
     var {active, activeColor, board, winner} = this.state;
     var {activePlayer, color, disabled} = this.props;
     return (
-      <div className={`board ${disabled ? 'board--disabled' : ''}`}>
+      <div className={`board ${disabled == true && winner == false ? 'board--disabled' : ''}`}>
         
         {winner ? <WinnerOverlay winner={this.state.winner} reset={this.resetGame.bind(this)} /> : ''}
         
