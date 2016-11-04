@@ -17,8 +17,12 @@ app.get('/', function(req, res) {
   var usercount = 0;
 
   nsp.on('connection', function(socket) {
-    
+
     socket.emit('connected', usercount++)
+
+    if (usercount == 2) {
+      nsp.emit('ready_to_play')
+    }
     
     socket.on('player_moved', function(state) {
       nsp.emit('player_moved', state);
@@ -37,7 +41,7 @@ app.get('/', function(req, res) {
     });
 
     socket.on('disconnect', function () {
-      nsp.emit('disconnected', usercount--);
+      socket.broadcast.emit('disconnected', usercount--);
     });
 
   });

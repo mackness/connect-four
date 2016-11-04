@@ -46,6 +46,22 @@ class Chat extends Component {
       this.setState({ messages })
       chatWindow.scrollTop = chatWindow.scrollHeight;
     })
+
+    socket.on('disconnected', (val)=> {
+      messages.push({
+        color: this.props.color == 'blue' ? 'red' : 'blue',
+        value: 'I left the game.'
+      })
+      this.setState({ messages })
+    })
+
+    socket.on('ready_to_play', ()=> {
+      messages.push({
+        color: 'black',
+        value: 'Both players are connected and ready to play!'
+      })
+      this.setState({ messages })
+    })
   }
 
   render() {
