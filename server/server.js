@@ -25,11 +25,11 @@ app.get('/', function(req, res) {
     }
     
     socket.on('player_moved', function(state) {
-      nsp.emit('player_moved', state);
+      socket.broadcast.emit('player_moved', state);
     });
 
     socket.on('player_move_preview', function(state) {
-      nsp.emit('player_move_preview', state);
+      socket.broadcast.emit('player_move_preview', state);
     });
 
     socket.on('set_active_player', function(activePlayer) {
