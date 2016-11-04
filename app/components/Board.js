@@ -61,7 +61,7 @@ class Board extends Component {
 
   handleSlotState(colIndex, state) {
     let {board} = this.state;
-    let {color} = this.props;
+    let {color,socket} = this.props;
     let slot = {
       "state": state,
       "color": color,
@@ -83,6 +83,7 @@ class Board extends Component {
     }
 
     this.setState({board})
+    socket.emit('player_move_preview', JSON.stringify(this.state));
   }
 
   setSlotPreview = (colIndex) => this.handleSlotState(colIndex, 'preview')
@@ -114,6 +115,10 @@ class Board extends Component {
   componentDidMount() {
     let {socket} = this.props;
     socket.on('player_moved', (state)=> {
+      var {board} = JSON.parse(state)
+      this.setState({board})
+    })
+    socket.on('player_move_preview', (state)=> {
       var {board} = JSON.parse(state)
       this.setState({board})
     })
