@@ -13,7 +13,8 @@ class App extends Component {
    		connected: [],
    		gameState: 'pre_start',
    		activePlayer: 'blue',
-   		color: ' '
+   		color: ' ',
+      checked: false
     };
     this.toggleActivePlayer = this.toggleActivePlayer.bind(this)
   }
@@ -55,8 +56,12 @@ class App extends Component {
 	        		activePlayer={this.state.activePlayer} />
 	      	</div>
 	        <div className="col col--right">
-	          <span className="col__title">Send this link to someone:</span>
+            <span className="col__title">Send this link to someone:</span>
 	          <input ref="url" className="col__url" type="text" defaultValue={window.location.origin + window.location.pathname} />
+            <div className={`ai-checkbox ${this.state.checked ? 'ai-checkbox--checked' : ''}`}>
+              <label className="ai-checkbox__label">Play Computer:</label>
+              <input className="ai-checkbox__checkbox" type="checkbox" onClick={(input)=> this.setState({checked: !this.state.checked})}/>
+            </div>
 	          <Chat 
 	          	socket={socket}
 	          	gameState={gameState}

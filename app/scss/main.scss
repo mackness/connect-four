@@ -153,6 +153,30 @@ html {
 	float: left;
 }
 
+.ai-checkbox {
+    width: 100%;
+    clear: both;
+    overflow: hidden;
+    background-color: #f1f1f1;
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 3px;
+    border: solid 7px #ccc;
+    transition: all 200ms linear;
+}
+
+.ai-checkbox--checked {
+	border: solid 7px #27ae60;
+	background-color: #2ecc71;
+}
+
+.ai-checkbox__label {
+	float: left;
+}
+
+.ai-checkbox__checkbox {
+	float: right;
+}
 
 
 
